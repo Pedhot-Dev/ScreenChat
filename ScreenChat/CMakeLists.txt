@@ -51,12 +51,15 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
     C_VISIBILITY_PRESET hidden
 )
 
-target_link_libraries(${PROJECT_NAME} llmo SRDescent SRCursor SREvents render ${Boost_LIBRARIES} samp)
+target_link_libraries(${PROJECT_NAME} llmo SRDescent SRCursor SREvents ${Boost_LIBRARIES} samp d3dx9)
 if(DXHOOK)
 	target_link_libraries(${PROJECT_NAME} ProxyDX9)
 endif()
 if(DRAWHOOK)
 	target_link_libraries(${PROJECT_NAME} DrawHook)
+endif()
+if(DXHOOK OR DRAWHOOK)
+	target_link_libraries(${PROJECT_NAME} render)
 endif()
 
 if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release" OR "${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel")

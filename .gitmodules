@@ -4,18 +4,9 @@
 [submodule "third-party/llmo"]
 	path = third-party/llmo
 	url = https://gitlab.com/SR_team/llmo
-[submodule "third-party/DrawHook"]
-	path = third-party/DrawHook
-	url = https://gitlab.com/prime-hack/samp/plugins/templates/DrawHook
-[submodule "third-party/render"]
-	path = third-party/render
-	url = https://gitlab.com/prime-hack/samp/plugins/templates/render
 [submodule "third-party/SRCursor"]
 	path = third-party/SRCursor
 	url = https://gitlab.com/SR_team/SRCursor
-[submodule "third-party/SRKeys"]
-	path = third-party/SRKeys
-	url = https://gitlab.com/SR_team/SRKeys
 [submodule "third-party/SREvents"]
 	path = third-party/SREvents
 	url = https://gitlab.com/SR_team/SREvents

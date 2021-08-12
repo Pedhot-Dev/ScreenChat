@@ -17,7 +17,7 @@ get_filename_component(PROJECT_NAME ${CMAKE_SOURCE_DIR} NAME)
 project(${PROJECT_NAME})
 
 option(DXHOOK "Use full DirectX hook [ON/OFF]" OFF)
-option(DRAWHOOK "Use DrawHook hook [ON/OFF]" ON)
+option(DRAWHOOK "Use DrawHook hook [ON/OFF]" OFF)
 if(DXHOOK)
 	ADD_DEFINITIONS(-DFULL_DX_HOOK=1)
 endif()
