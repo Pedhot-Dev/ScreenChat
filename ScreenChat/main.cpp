@@ -14,6 +14,7 @@ AsiPlugin::AsiPlugin() : SRDescent( nullptr ) {
 
 AsiPlugin::~AsiPlugin() {
 	g_class.events->onKeyPressed -= kid;
+	SAMP::Chat::DeleteInstance();
 }
 
 void AsiPlugin::onKeyPressed( int key ) {
