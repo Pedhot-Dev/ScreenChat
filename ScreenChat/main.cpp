@@ -38,48 +38,41 @@ void AsiPlugin::onKeyPressed( int key ) {
 	}
 
 #pragma pack( push, 1 )
-	struct ChatInfo {
-		int m_pagesize;
-		char pad[0x8];
-		bool m_bTimestamps;
-		char pad2[0x121];
-		long m_lChatWindowBottom;
-		struct Entry {
-			char pad[0x4];
-			char szPrefix[0x1C];
-			char szText[0x90];
-			char pad2[0x4C];
-		} m_entries[0x64];
-		void *m_pFontRenderer;
-		char pad3[0x18];
-		IDirect3DSurface9 *m_pSurface;
-		char pad4[0x24];
-		int m_iTimestampWidth;
+	struct Entry {
+		char pad[0x4];
+		char szPrefix[0x1C];
+		char szText[0x90];
+		char pad2[0x4C];
 	};
 #pragma pack( pop )
 
-	auto chat = *(ChatInfo **)( SAMP::Library() + ( SAMP::isR1() ? 0x21A0E4 : 0x26E8C8 ) );
-	if ( !chat ) return;
-
-	auto width = 0;
-	auto entryCount = sizeof( chat->m_entries ) / sizeof( ChatInfo::Entry );
-	for ( auto i = entryCount - chat->m_pagesize; i < entryCount; ++i ) {
-		auto calcFontSize = SAMP::Library() + ( SAMP::isR1() ? 0x66B20 : 0x6AA90 );
-		RECT textSize{ 0, 0, 0, 0 };
-		CallFunc::thiscall( chat->m_pFontRenderer, calcFontSize, &textSize, chat->m_entries[i].szText, 0 );
-		if ( chat->m_entries[i].szPrefix[0] ) {
-			RECT prefixSize{ 0, 0, 0, 0 };
-			CallFunc::thiscall( chat->m_pFontRenderer, calcFontSize, &prefixSize, chat->m_entries[i].szPrefix, 0 );
-			textSize.left += prefixSize.left + 5;
+	auto width = 0, x = 0, y = 0;
+	if ( SAMP::isR1() || SAMP::isR3() ) {
+		for ( auto i = 0; i < SAMP::Chat::Instance()->entryCount(); ++i ) {
+			auto entry = (Entry *)SAMP::Chat::Instance()->entry( i );
+			auto calcFontSize = SAMP::Library() + ( SAMP::isR1() ? 0x66B20 : 0x6AA90 );
+			RECT textSize{ 0, 0, 0, 0 };
+			CallFunc::thiscall( SAMP::Chat::Instance()->fonts(), calcFontSize, &textSize, entry->szText, 0 );
+			if ( entry->szPrefix[0] ) {
+				RECT prefixSize{ 0, 0, 0, 0 };
+				CallFunc::thiscall( SAMP::Chat::Instance()->fonts(), calcFontSize, &prefixSize, entry->szPrefix, 0 );
+				textSize.left += prefixSize.left + 5;
+			}
+			if ( textSize.left > width ) width = textSize.left;
 		}
-		if ( textSize.left > width ) width = textSize.left;
+		if ( SAMP::Chat::Instance()->isTimestampEnabled() ) width += SAMP::Chat::Instance()->timestampWidth() + 5;
+
+		x = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DB1 : 0x67201 ) );
+		y = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DA0 : 0x671F0 ) );
+	} else {
+		D3DSURFACE_DESC desc;
+		SAMP::Chat::Instance()->surface()->GetDesc( &desc );
+		width = desc.Width < g_class.params.BackBufferWidth ? desc.Width : g_class.params.BackBufferWidth;
+		x = 45;
+		y = 10;
 	}
-	if ( chat->m_bTimestamps ) width += chat->m_iTimestampWidth + 5;
 
-	int x = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DB1 : 0x67201 ) );
-	int y = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DA0 : 0x671F0 ) );
-
-	RECT rect{ x, y, static_cast<LONG>( width + x ), chat->m_lChatWindowBottom - y };
-	D3DXSaveSurfaceToFileW( screenName.c_str(), D3DXIFF_PNG, chat->m_pSurface, nullptr, &rect );
+	RECT rect{ x, y, static_cast<LONG>( width + x ), SAMP::Chat::Instance()->chatWinBottom() - y };
+	D3DXSaveSurfaceToFileW( screenName.c_str(), D3DXIFF_PNG, SAMP::Chat::Instance()->surface(), nullptr, &rect );
 	SAMP::Chat::Instance()->addMsgInfo( "Save chat screen to "s + screenName.string() );
 }
