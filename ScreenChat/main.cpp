@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <string>
 #include <samp.hpp>
+#include <CDXUT/ScrollBar.h>
 #include <callfunc.hpp>
 #include <d3dx9.h>
 
@@ -50,7 +51,7 @@ void AsiPlugin::onKeyPressed( int key ) {
 	};
 #pragma pack( pop )
 
-	auto width = 0, x = 0, y = 0;
+	auto width = 0, height = 0, x = 0, y = 0;
 	if ( SAMP::isR1() || SAMP::isR3() || SAMP::isDL() ) {
 		x = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DB1 : ( SAMP::isR3() ? 0x67201 : 0x673F1 ) ) );
 		y = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DA0 : ( SAMP::isR3() ? 0x671F0 : 0x673E0 ) ) );
@@ -58,15 +59,42 @@ void AsiPlugin::onKeyPressed( int key ) {
 		x = 45;
 		y = 10;
 	}
-	for ( auto i = 0; i < SAMP::Chat::Instance()->entryCount(); ++i ) {
+
+	auto from = SAMP::Chat::Instance()->scroll()->scrollBarData.curentPos;
+	auto to = from + SAMP::Chat::Instance()->scroll()->scrollBarData.pagesize;
+	bool allowSkipEmpty = true;
+	for ( auto i = from; i < to; ++i ) {
+		auto allNextLinesEmpty = []( int from, int to ) {
+			if ( from == to ) return false;
+			for ( auto i = from; i < to; ++i ) {
+				auto entry = (Entry *)SAMP::Chat::Instance()->entry( i );
+				if ( entry->szText[0] || entry->szPrefix[0] ) {
+					if ( entry->szPrefix[0] )
+						return false;
+					else if ( entry->szText[0] != ' ' && entry->szText[1] )
+						return false;
+				}
+			}
+			return true;
+		};
 		auto entry = (Entry *)SAMP::Chat::Instance()->entry( i );
-		auto textWidth = SAMP::Fonts::Instance()->measureText( entry->szText ).width;
-		if ( entry->szPrefix[0] ) textWidth += SAMP::Fonts::Instance()->measureText( entry->szPrefix ).width + 5;
-		if ( textWidth > width ) width = textWidth;
+		if ( ( !entry->szText[0] || ( entry->szText[0] == ' ' && !entry->szText[1] ) ) && !entry->szPrefix[0] && allowSkipEmpty ) {
+			y += SAMP::Chat::Instance()->stringHeight() + 1;
+			continue;
+		} else {
+			if ( strlen( entry->szText ) < 10 ) SAMP::Chat::Instance()->addMsgInfo( "short string \""s + entry->szText + "\""s );
+			allowSkipEmpty = false;
+			if ( allNextLinesEmpty( i + 1, to ) ) break;
+		}
+		auto textWidht = SAMP::Fonts::Instance()->measureText( entry->szText ).width;
+		if ( entry->szPrefix[0] ) textWidht += SAMP::Fonts::Instance()->measureText( entry->szPrefix ).width + 5;
+		if ( textWidht > width ) width = textWidht;
+		height += SAMP::Chat::Instance()->stringHeight() + 1;
 	}
 	if ( SAMP::Chat::Instance()->isTimestampEnabled() ) width += SAMP::Chat::Instance()->timestampWidth() + 5;
+	if ( !height ) return; // all strings is empty
 
-	RECT rect{ x, y, static_cast<LONG>( width + x ), SAMP::Chat::Instance()->chatWinBottom() - y };
+	RECT rect{ x, y, width + x, height + y };
 	D3DXSaveSurfaceToFileW( screenName.c_str(), D3DXIFF_PNG, SAMP::Chat::Instance()->surface(), nullptr, &rect );
 	SAMP::Chat::Instance()->addMsgInfo( "Save chat screen to "s + screenName.string() );
 }
