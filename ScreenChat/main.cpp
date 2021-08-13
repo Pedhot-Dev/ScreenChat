@@ -82,7 +82,6 @@ void AsiPlugin::onKeyPressed( int key ) {
 			y += SAMP::Chat::Instance()->stringHeight() + 1;
 			continue;
 		} else {
-			if ( strlen( entry->szText ) < 10 ) SAMP::Chat::Instance()->addMsgInfo( "short string \""s + entry->szText + "\""s );
 			allowSkipEmpty = false;
 			if ( allNextLinesEmpty( i + 1, to ) ) break;
 		}
