@@ -16,3 +16,6 @@
 [submodule "third-party/samp"]
 	path = third-party/samp
 	url = https://gitlab.com/prime-hack/samp/plugins/templates/samp
+[submodule "third-party/dxut"]
+	path = third-party/dxut
+	url = https://gitlab.com/prime-hack/samp/plugins/templates/dxut

@@ -49,6 +49,7 @@ GETPART(https://gitlab.com/SR_team/SRCursor third-party/SRCursor)
 GETPART(https://gitlab.com/SR_team/SREvents third-party/SREvents)
 GETPART(https://gitlab.com/SR_team/SRDescent third-party/SRDescent)
 GETPART(https://gitlab.com/prime-hack/samp/plugins/templates/samp third-party/samp)
+GETPART(https://gitlab.com/prime-hack/samp/plugins/templates/dxut third-party/dxut)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
