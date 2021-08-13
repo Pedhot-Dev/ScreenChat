@@ -20,6 +20,8 @@ AsiPlugin::~AsiPlugin() {
 void AsiPlugin::onKeyPressed( int key ) {
 	if ( key != VK_F2 || !g_class.events->isKeyDown( VK_LSHIFT ) ) return;
 
+	if ( SAMP::Version() == SAMP::eVerCode::unknown || SAMP::Version() == SAMP::eVerCode::notLoaded ) return;
+
 	fs::path screenPath( "chat_screens" );
 	if ( !fs::exists( screenPath ) ) { fs::create_directories( screenPath ); }
 
@@ -48,10 +50,10 @@ void AsiPlugin::onKeyPressed( int key ) {
 #pragma pack( pop )
 
 	auto width = 0, x = 0, y = 0;
-	if ( SAMP::isR1() || SAMP::isR3() ) {
+	if ( SAMP::isR1() || SAMP::isR3() || SAMP::isDL() ) {
 		for ( auto i = 0; i < SAMP::Chat::Instance()->entryCount(); ++i ) {
 			auto entry = (Entry *)SAMP::Chat::Instance()->entry( i );
-			auto calcFontSize = SAMP::Library() + ( SAMP::isR1() ? 0x66B20 : 0x6AA90 );
+			auto calcFontSize = SAMP::Library() + ( SAMP::isR1() ? 0x66B20 : ( SAMP::isR3() ? 0x6AA90 : 0x6AC40 ) );
 			RECT textSize{ 0, 0, 0, 0 };
 			CallFunc::thiscall( SAMP::Chat::Instance()->fonts(), calcFontSize, &textSize, entry->szText, 0 );
 			if ( entry->szPrefix[0] ) {
@@ -63,8 +65,8 @@ void AsiPlugin::onKeyPressed( int key ) {
 		}
 		if ( SAMP::Chat::Instance()->isTimestampEnabled() ) width += SAMP::Chat::Instance()->timestampWidth() + 5;
 
-		x = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DB1 : 0x67201 ) );
-		y = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DA0 : 0x671F0 ) );
+		x = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DB1 : ( SAMP::isR3() ? 0x67201 : 0x673F1 ) ) );
+		y = *(int *)( SAMP::Library() + ( SAMP::isR1() ? 0x63DA0 : ( SAMP::isR3() ? 0x671F0 : 0x673E0 ) ) );
 	} else {
 		D3DSURFACE_DESC desc;
 		SAMP::Chat::Instance()->surface()->GetDesc( &desc );
