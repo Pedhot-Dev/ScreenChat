@@ -1,0 +1,17 @@
+image: srteam/mxeposixuc
+
+win32:
+  stage: build
+  before_script:
+    - export PATH="/mxe/usr/bin/:${PATH}:${CI_PROJECT_DIR}/build"
+    - mkdir -p $CI_PROJECT_DIR/build
+    - cd $CI_PROJECT_DIR/build
+  script:
+    - i686-w64-mingw32.static.posix-cmake -DCMAKE_BUILD_TYPE=MinSizeRel $CI_PROJECT_DIR
+    - make -j`nproc --all`
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/build/ScreenChat.asi
+  cache:
+    paths:
+      - $CI_PROJECT_DIR/build/
