@@ -32,10 +32,21 @@ void AsiPlugin::onKeyPressed( int key ) {
 	fs::path screenPath = fs::path( documentsPath ) / "GTA San Andreas User Files" / "chat_screens";
 	if ( !fs::exists( screenPath ) ) { fs::create_directories( screenPath ); }
 
-	auto time = ::time( 0 );
-	auto lt = ::localtime( &time );
+	std::time_t now = std::time(nullptr);
+	std::tm* lt = std::localtime(&now);
+
 	char timeBuf[128];
-	sprintf( timeBuf, "%02d.%02d.%02d", lt->tm_hour, lt->tm_min, lt->tm_sec );
+	std::sprintf(
+		timeBuf,
+		"%lld_%02d%02d%04d_%02d%02d%02d",
+		static_cast<long long>(now),   // unix timestamp
+		lt->tm_mday,                   // DD
+		lt->tm_mon + 1,                // MM
+		lt->tm_year + 1900,            // YYYY
+		lt->tm_hour,                   // HH
+		lt->tm_min,                    // MM
+		lt->tm_sec                     // SS
+	);
 
 	auto screenName = screenPath / ( timeBuf + ".png"s );
 	if ( fs::exists( screenName ) ) {
