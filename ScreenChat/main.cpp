@@ -5,6 +5,9 @@
 #include <CDXUT/ScrollBar.h>
 #include <callfunc.hpp>
 #include <d3dx9.h>
+#include <windows.h>
+#include <shlobj.h>
+#pragma comment(lib, "Shell32.lib")
 
 namespace fs = std::filesystem;
 using namespace std::string_literals;
@@ -24,7 +27,9 @@ void AsiPlugin::onKeyPressed( int key ) {
 
 	if ( SAMP::Version() == SAMP::eVerCode::unknown || SAMP::Version() == SAMP::eVerCode::notLoaded ) return;
 
-	fs::path screenPath( "chat_screens" );
+	char documentsPath[MAX_PATH];
+	SHGetFolderPathA( nullptr, CSIDL_MYDOCUMENTS, nullptr, SHGFP_TYPE_CURRENT, documentsPath );
+	fs::path screenPath = fs::path( documentsPath ) / "GTA San Andreas User Files" / "chat_screens";
 	if ( !fs::exists( screenPath ) ) { fs::create_directories( screenPath ); }
 
 	auto time = ::time( 0 );
